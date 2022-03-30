@@ -1,18 +1,23 @@
 #!/bin/bash
 
+# 何かのエラーが発生した時点で、処理を中断
+# 未定義の変数を使ったらエラー
+# 実行したコマンドを標準エラーに出力
+set -eux
+
 CURRENT=$(cd $(dirname $0);pwd)
 cd $CURRENT
 
 # ----------------------------------------------------------------------
-S3_BUCKET_NAME=sample-db-binlog-925948485307
-DB_HOST=test-database.cuwptkxjl3ng.ap-northeast-1.rds.amazonaws.com
-DB_PASSWORD=hogehoge55
-DB_USER=admin
-DB_NAME=testdb
+ENV=develop
+APP_NAME=sampleapp
+DB_NAME=sampledb
+MAX_DOWNLOAD_BINLOG_COUNT=10
 
-MAX_DOWNLOAD_BINLOG_COUNT=5
-TEMP_DIR=./tmp_binlog/${DB_NAME}/
-S3_DIR=s3://${S3_BUCKET_NAME}/${DB_NAME}/
+S3_BUCKET_NAME=${APP_NAME}-backup-${ENV}
+DB_PROFILE_PATH=./profiles/${DB_NAME}.conf
+TEMP_DIR=./tmp_binlog/${DB_NAME}
+S3_DIR=s3://${S3_BUCKET_NAME}/database/${DB_NAME}/binlog
 # ----------------------------------------------------------------------
 
 
@@ -20,7 +25,7 @@ S3_DIR=s3://${S3_BUCKET_NAME}/${DB_NAME}/
 mkdir -p ${TEMP_DIR}
 
 # binlog取得
-mysql -u ${DB_USER} --host=${DB_HOST} -p${DB_PASSWORD} -e 'show master logs' | grep mysql-bin | awk '{print $1}' > tmp_${DB_NAME}.txt
+mysql --defaults-extra-file=${DB_PROFILE_PATH} -e 'show master logs' | grep mysql-bin | awk '{print $1}' > tmp_${DB_NAME}.txt
 # 降順にする
 binlog_files=`tac tmp_${DB_NAME}.txt`
 rm -f tmp_${DB_NAME}.txt
@@ -29,7 +34,7 @@ rm -f tmp_${DB_NAME}.txt
 count=0
 for binlog_file in $binlog_files
 do
-  eval 'mysqlbinlog --read-from-remote-server --host=${DB_HOST} --raw -u ${DB_USER} -p${DB_PASSWORD} --result-file=${TEMP_DIR}/ ${binlog_file}'
+  eval 'mysqlbinlog --defaults-extra-file=${DB_PROFILE_PATH} --read-from-remote-server --raw --result-file=${TEMP_DIR}/ ${binlog_file}'
   echo ${binlog_file}
   count=`expr $count + 1`
   # 5ファイル取得で止める
@@ -39,11 +44,7 @@ do
 done
 
 # S3にアップロード
-aws s3api put-object --bucket ${S3_BUCKET_NAME} --key ${DB_NAME}/
-echo ${TEMP_DIR}
-echo ${S3_DIR}
-aws s3 sync ${TEMP_DIR}/ ${S3_DIR}
+aws s3 sync ${TEMP_DIR}/ ${S3_DIR}/
 
-#
+# 削除
 rm -rf ${TEMP_DIR}/*
-
