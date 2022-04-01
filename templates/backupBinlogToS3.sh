@@ -9,13 +9,13 @@ CURRENT=$(cd $(dirname $0);pwd)
 cd $CURRENT
 
 # ----------------------------------------------------------------------
-ENV=develop
-APP_NAME=sampleapp
-DB_NAME=sampledb
-MAX_DOWNLOAD_BINLOG_COUNT=10
+PJ_NAME=@@@PJ_NAME@@@
+ENV=@@@ENV@@@
+S3_BUCKET_NAME=${PJ_NAME}-backup-${ENV}
+DB_NAME=@@@DB_NAME@@@
+DB_PROFILE_PATH=../../profiles/${DB_NAME}_writer.conf
 
-S3_BUCKET_NAME=${APP_NAME}-backup-${ENV}
-DB_PROFILE_PATH=./profiles/${DB_NAME}.conf
+MAX_DOWNLOAD_BINLOG_COUNT=10
 TEMP_DIR=./tmp_binlog/${DB_NAME}
 S3_DIR=s3://${S3_BUCKET_NAME}/database/${DB_NAME}/binlog
 # ----------------------------------------------------------------------
