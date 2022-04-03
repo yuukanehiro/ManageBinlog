@@ -3,7 +3,7 @@
 CURRENT=$(cd $(dirname $0);pwd)
 cd $CURRENT
 
-
+DATETIME=`date +%Y%m%d-%H%M%S`
 
 echo "DB接続の設定ファイル作成ウィザード Start"
 
@@ -30,7 +30,7 @@ else
   exit 1
 fi
 
-echo "DBの接続先はreader(slave)ですか、それともwriter(master)かを教えて下さい"
+echo "DBの接続先はreader(slave)ですか、それともwriter(master)かを教えて下さい。readerインスタンスとreaderエンドポイントが存在する場合はreaderをお勧めします。"
 echo "reader/writer"
 read READER_OR_WRITER
 
@@ -76,12 +76,16 @@ fi
 
 PROFILE_FILE_READER="./profiles/${DB_NAME}_${READER_OR_WRITER}.conf"
 BATCH_DUMPDB_FILE="./batches/${DB_NAME}/dumpdb.sh"
+mkdir -p ./archives/${DB_NAME}/batches
+mkdir -p ./archives/${DB_NAME}/profile
 # ファイルが存在するか
 if [ -e $PROFILE_FILE_READER ]; then
-  cp /dev/null $PROFILE_FILE_READER
+  mv $PROFILE_FILE_READER ./archives/${DB_NAME}/profile/${DATETIME}_${READER_OR_WRITER}.conf
+  touch "./profiles/${DB_NAME}_${READER_OR_WRITER}.conf"
 fi
 if [ -e $BATCH_DUMPDB_FILE ]; then
-  cp /dev/null $BATCH_DUMPDB_FILE
+  mv $BATCH_DUMPDB_FILE ./archives/${DB_NAME}/batches/${DATETIME}_dumpdb.sh
+  touch $BATCH_DUMPDB_FILE
 fi
 echo $PROFILE_FILE_READER
 touch $PROFILE_FILE_READER
@@ -117,10 +121,12 @@ BATCH_BACKUP_BINLOG="./batches/${DB_NAME}/backupBinlogToS3.sh"
 
 # ファイルが存在するか
 if [ -e $PROFILE_FILE_WRITER ]; then
-  cp /dev/null $PROFILE_FILE_WRITER
+  mv $PROFILE_FILE_WRITER ./archives/${DB_NAME}/profile/${DATETIME}_writer.conf
+  touch $PROFILE_FILE_WRITER
 fi
 if [ -e $BATCH_BACKUP_BINLOG ]; then
-  cp /dev/null $BATCH_BACKUP_BINLOG
+  mv $BATCH_BACKUP_BINLOG ./archives/${DB_NAME}/batches/${DATETIME}_backupBinlogToS3.sh
+  touch $BATCH_BACKUP_BINLOG
 fi
 echo $PROFILE_FILE_WRITER
 touch $PROFILE_FILE_WRITER
@@ -151,7 +157,8 @@ fi
 
 BATCH_DOWNLOAD_BINLOG="./batches/${DB_NAME}/downloadBinlogFromS3.sh"
 if [ -e $BATCH_DOWNLOAD_BINLOG ]; then
-  cp /dev/null $BATCH_DOWNLOAD_BINLOG
+  mv $BATCH_DOWNLOAD_BINLOG ./archives/${DB_NAME}/batches/${DATETIME}_downloadBinlogFromS3.sh
+  touch $BATCH_DOWNLOAD_BINLOG
 fi
 cp ./templates/downloadBinlogFromS3.sh $BATCH_DOWNLOAD_BINLOG
 sed -i -e "s/@@@PJ_NAME@@@/${PJ_NAME}/g" $BATCH_DOWNLOAD_BINLOG
