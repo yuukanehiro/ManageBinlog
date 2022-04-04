@@ -44,15 +44,14 @@ else
   echo "Error:想定しない値。reader or writerを選択してください"
   exit 1 
 fi
+echo "DBの${READER_OR_WRITER}_endpoint(host)を入力してください。例) sample-db.cluster-xxxxxxx.ap-northeast-1.rds.amazonaws.com "
+read DB_HOST
 
 echo "DBの名前を入力してください。例) sampledb"
 read DB_NAME
 
 echo "DBのuser名を入力してください。例) admin"
 read DB_USER
-
-echo "DBの${READER_OR_WRITER}_endpoint(host)を入力してください。例) sample-db.cluster-xxxxxxx.ap-northeast-1.rds.amazonaws.com "
-read DB_HOST
 
 echo "DBのpasswordを入力してください。例) p@sSw0rd"
 read DB_PASSWORD
@@ -74,17 +73,17 @@ if [ ! ${IS_OK} = "yes" ] ; then
   exit 1
 fi
 
-PROFILE_FILE_READER="./profiles/${DB_NAME}_${READER_OR_WRITER}.conf"
-BATCH_DUMPDB_FILE="./batches/${DB_NAME}/dumpdb.sh"
-mkdir -p ./archives/${DB_NAME}/batches
-mkdir -p ./archives/${DB_NAME}/profile
+PROFILE_FILE_READER="./profiles/${DB_NAME}_${ENV}_${READER_OR_WRITER}.conf"
+BATCH_DUMPDB_FILE="./batches/${DB_NAME}/${ENV}_dumpdb.sh"
+mkdir -p ./archives/${DB_NAME}/batches/${DATETIME}
+mkdir -p ./archives/${DB_NAME}/profile/${DATETIME}
 # ファイルが存在するか
 if [ -e $PROFILE_FILE_READER ]; then
-  mv $PROFILE_FILE_READER ./archives/${DB_NAME}/profile/${DATETIME}_${READER_OR_WRITER}.conf
-  touch "./profiles/${DB_NAME}_${READER_OR_WRITER}.conf"
+  mv $PROFILE_FILE_READER ./archives/${DB_NAME}/profile/${DATETIME}/${DB_NAME}_${ENV}_${READER_OR_WRITER}.conf
+  touch "./profiles/${DB_NAME}_${READER_OR_WRITER}_${ENV}.conf"
 fi
 if [ -e $BATCH_DUMPDB_FILE ]; then
-  mv $BATCH_DUMPDB_FILE ./archives/${DB_NAME}/batches/${DATETIME}_dumpdb.sh
+  mv $BATCH_DUMPDB_FILE ./archives/${DB_NAME}/batches/${DATETIME}/${DB_NAME}_${ENV}_dumpdb.sh
   touch $BATCH_DUMPDB_FILE
 fi
 echo $PROFILE_FILE_READER
@@ -116,16 +115,16 @@ fi
 
 echo "DBのwriter_endpoint(host)を入力してください。例) sample-db.cluster-xxxxxxx.ap-northeast-1.rds.amazonaws.com "
 read DB_HOST
-PROFILE_FILE_WRITER="./profiles/${DB_NAME}_writer.conf"
-BATCH_BACKUP_BINLOG="./batches/${DB_NAME}/backupBinlogToS3.sh"
+PROFILE_FILE_WRITER="./profiles/${DB_NAME}_${ENV}_writer.conf"
+BATCH_BACKUP_BINLOG="./batches/${DB_NAME}/${ENV}_backupBinlogToS3.sh"
 
 # ファイルが存在するか
 if [ -e $PROFILE_FILE_WRITER ]; then
-  mv $PROFILE_FILE_WRITER ./archives/${DB_NAME}/profile/${DATETIME}_writer.conf
+  mv $PROFILE_FILE_WRITER ./archives/${DB_NAME}/profile/${DATETIME}/${DB_NAME}_${ENV}_writer.conf
   touch $PROFILE_FILE_WRITER
 fi
 if [ -e $BATCH_BACKUP_BINLOG ]; then
-  mv $BATCH_BACKUP_BINLOG ./archives/${DB_NAME}/batches/${DATETIME}_backupBinlogToS3.sh
+  mv $BATCH_BACKUP_BINLOG ./archives/${DB_NAME}/batches/${DATETIME}/${DB_NAME}_${ENV}_backupBinlogToS3.sh
   touch $BATCH_BACKUP_BINLOG
 fi
 echo $PROFILE_FILE_WRITER
@@ -155,9 +154,9 @@ if [ ! ${IS_OK} = "yes" ] ; then
   exit 1
 fi
 
-BATCH_DOWNLOAD_BINLOG="./batches/${DB_NAME}/downloadBinlogFromS3.sh"
+BATCH_DOWNLOAD_BINLOG="./batches/${DB_NAME}/${ENV}_downloadBinlogFromS3.sh"
 if [ -e $BATCH_DOWNLOAD_BINLOG ]; then
-  mv $BATCH_DOWNLOAD_BINLOG ./archives/${DB_NAME}/batches/${DATETIME}_downloadBinlogFromS3.sh
+  mv $BATCH_DOWNLOAD_BINLOG ./archives/${DB_NAME}/batches/${DATETIME}/${DB_NAME}_${ENV}_downloadBinlogFromS3.sh
   touch $BATCH_DOWNLOAD_BINLOG
 fi
 cp ./templates/downloadBinlogFromS3.sh $BATCH_DOWNLOAD_BINLOG

@@ -13,7 +13,7 @@ PJ_NAME=@@@PJ_NAME@@@
 ENV=@@@ENV@@@
 S3_BUCKET_NAME=${PJ_NAME}-backup-${ENV}
 DB_NAME=@@@DB_NAME@@@
-DB_PROFILE_PATH=../../profiles/${DB_NAME}_writer.conf
+DB_PROFILE_PATH=../../profiles/${DB_NAME}_${ENV}_writer.conf
 
 MAX_DOWNLOAD_BINLOG_COUNT=10
 TEMP_DIR=./tmp_binlog/${DB_NAME}
@@ -44,7 +44,8 @@ do
 done
 
 # S3にアップロード
-aws s3 sync ${TEMP_DIR}/ ${S3_DIR}/
+aws s3 sync --profile s3-sync-${ENV} \
+       	${TEMP_DIR}/ ${S3_DIR}/
 
 # 削除
 rm -rf ${TEMP_DIR}/*

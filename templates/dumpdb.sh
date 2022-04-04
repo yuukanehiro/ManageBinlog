@@ -12,7 +12,7 @@ ENV=@@@ENV@@@
 DB_NAME=@@@DB_NAME@@@
 READER_OR_WRITER=@@@READER_OR_WRITER@@@
 
-DB_PROFILE_PATH=../../profiles/${DB_NAME}_${READER_OR_WRITER}.conf
+DB_PROFILE_PATH=../../profiles/${DB_NAME}_${ENV}_${READER_OR_WRITER}.conf
 S3_BUCKET_NAME="${PJ_NAME}-backup-${ENV}"
 DAY=`date "+%Y%m%d"`
 DATE=`date "+%Y%m%d_%Hh"`
@@ -42,4 +42,5 @@ gzip -f ${TEMP_PATH}/${DUMP_FILE_NAME}
 find ${TEMP_PATH}/ -mtime +4 -exec rm -f {} \;
 
 # S3と同期
-aws s3 sync ${TEMP_PATH}/ ${S3_BUCKET_PATH}/ --delete
+aws s3 sync --profile s3-sync-${ENV} \
+	${TEMP_PATH}/ ${S3_BUCKET_PATH}/ --delete

@@ -21,4 +21,5 @@ rm -rf ${STORAGE_DIR}/*
 mkdir -p ${STORAGE_DIR}
 
 # S3からbinlogをダウンロード
-aws s3 sync ${S3_DIR} ${STORAGE_DIR}
+aws s3 sync --profile s3-sync-${ENV} \
+       	${S3_DIR} ${STORAGE_DIR}
