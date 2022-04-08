@@ -7,7 +7,7 @@ DATETIME=`date +%Y%m%d-%H%M%S`
 
 echo "DB接続の設定ファイル作成ウィザード Start"
 
-echo "まずDBをダンプバックアップバッチを作ります。"
+echo "まずDB dumpファイルのバックアップバッチを作ります。"
 
 echo 'プロジェクト名(サービス名)を教えてください。S3バケットの名前に使います。${PJ_NAME}-backup-${ENV}'
 read PJ_NAME
@@ -30,7 +30,7 @@ else
   exit 1
 fi
 
-echo "DBの接続先はreader(slave)ですか、それともwriter(master)かを教えて下さい。readerインスタンスとreaderエンドポイントが存在する場合はreaderをお勧めします。"
+echo "dumpファイルを取得するDBのエンドポイントはreader or writer？readerインスタンスとreaderエンドポイントが存在する場合はreaderをお勧めします。"
 echo "reader/writer"
 read READER_OR_WRITER
 
@@ -80,11 +80,10 @@ mkdir -p ./archives/${DB_NAME}/profile/${DATETIME}
 # ファイルが存在するか
 if [ -e $PROFILE_FILE_READER ]; then
   mv $PROFILE_FILE_READER ./archives/${DB_NAME}/profile/${DATETIME}/${DB_NAME}_${ENV}_${READER_OR_WRITER}.conf
-  touch "./profiles/${DB_NAME}_${READER_OR_WRITER}_${ENV}.conf"
+  touch "./profiles/${DB_NAME}_${ENV}_${READER_OR_WRITER}.conf"
 fi
 if [ -e $BATCH_DUMPDB_FILE ]; then
   mv $BATCH_DUMPDB_FILE ./archives/${DB_NAME}/batches/${DATETIME}/${DB_NAME}_${ENV}_dumpdb.sh
-  touch $BATCH_DUMPDB_FILE
 fi
 echo $PROFILE_FILE_READER
 touch $PROFILE_FILE_READER
@@ -125,7 +124,6 @@ if [ -e $PROFILE_FILE_WRITER ]; then
 fi
 if [ -e $BATCH_BACKUP_BINLOG ]; then
   mv $BATCH_BACKUP_BINLOG ./archives/${DB_NAME}/batches/${DATETIME}/${DB_NAME}_${ENV}_backupBinlogToS3.sh
-  touch $BATCH_BACKUP_BINLOG
 fi
 echo $PROFILE_FILE_WRITER
 touch $PROFILE_FILE_WRITER
@@ -157,7 +155,6 @@ fi
 BATCH_DOWNLOAD_BINLOG="./batches/${DB_NAME}/${ENV}_downloadBinlogFromS3.sh"
 if [ -e $BATCH_DOWNLOAD_BINLOG ]; then
   mv $BATCH_DOWNLOAD_BINLOG ./archives/${DB_NAME}/batches/${DATETIME}/${DB_NAME}_${ENV}_downloadBinlogFromS3.sh
-  touch $BATCH_DOWNLOAD_BINLOG
 fi
 cp ./templates/downloadBinlogFromS3.sh $BATCH_DOWNLOAD_BINLOG
 sed -i -e "s/@@@PJ_NAME@@@/${PJ_NAME}/g" $BATCH_DOWNLOAD_BINLOG
