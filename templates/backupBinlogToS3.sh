@@ -37,7 +37,7 @@ do
   eval 'mysqlbinlog --defaults-extra-file=${DB_PROFILE_PATH} --read-from-remote-server --raw --result-file=${TEMP_DIR}/ ${binlog_file}'
   echo ${binlog_file}
   count=`expr $count + 1`
-  # 5ファイル取得で止める
+  # nファイル取得で止める
   if [ $count -eq $MAX_DOWNLOAD_BINLOG_COUNT ]; then
     break
   fi
