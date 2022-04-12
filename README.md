@@ -1,6 +1,6 @@
-<div style="text-align: center;">
+<p align="center">
 ![ManageRds](https://www.yuulinux.tokyo/contents/wp-content/uploads/2022/04/ManageRds_v1.jpg "ManageRds")
-</div>
+</p>
   
 # 使い方
 * [RDS管理用アプリ ManageRds](https://www.yuulinux.tokyo/21502/)
