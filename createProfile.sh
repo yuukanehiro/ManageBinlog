@@ -76,10 +76,11 @@ fi
 PROFILE_FILE_READER="./profiles/${DB_NAME}_${ENV}_${READER_OR_WRITER}.conf"
 BATCH_DUMPDB_FILE="./batches/${DB_NAME}/${ENV}_dumpdb.sh"
 mkdir -p ./archives/${DB_NAME}/batches/${DATETIME}
-mkdir -p ./archives/${DB_NAME}/profile/${DATETIME}
+mkdir -p ./archives/${DB_NAME}/profiles/${DATETIME}
+mkdir -p ./profiles
 # ファイルが存在するか
 if [ -e $PROFILE_FILE_READER ]; then
-  mv $PROFILE_FILE_READER ./archives/${DB_NAME}/profile/${DATETIME}/${DB_NAME}_${ENV}_${READER_OR_WRITER}.conf
+  mv $PROFILE_FILE_READER ./archives/${DB_NAME}/profiles/${DATETIME}/${DB_NAME}_${ENV}_${READER_OR_WRITER}.conf
   touch "./profiles/${DB_NAME}_${ENV}_${READER_OR_WRITER}.conf"
 fi
 if [ -e $BATCH_DUMPDB_FILE ]; then
@@ -119,7 +120,7 @@ BATCH_BACKUP_BINLOG="./batches/${DB_NAME}/${ENV}_backupBinlogToS3.sh"
 
 # ファイルが存在するか
 if [ -e $PROFILE_FILE_WRITER ]; then
-  mv $PROFILE_FILE_WRITER ./archives/${DB_NAME}/profile/${DATETIME}/${DB_NAME}_${ENV}_writer.conf
+  mv $PROFILE_FILE_WRITER ./archives/${DB_NAME}/profiles/${DATETIME}/${DB_NAME}_${ENV}_writer.conf
   touch $PROFILE_FILE_WRITER
 fi
 if [ -e $BATCH_BACKUP_BINLOG ]; then
