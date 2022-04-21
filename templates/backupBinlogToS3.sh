@@ -15,8 +15,9 @@ S3_BUCKET_NAME=${PJ_NAME}-backup-${ENV}
 DB_NAME=@@@DB_NAME@@@
 DB_PROFILE_PATH=../../profiles/${DB_NAME}_${ENV}_writer.conf
 
+# 取得するbinlogファイル数
 MAX_DOWNLOAD_BINLOG_COUNT=10
-TEMP_DIR=./tmp_binlog/${DB_NAME}
+TEMP_DIR=./tmp_binlog/${DB_NAME}/${ENV}
 S3_DIR=s3://${S3_BUCKET_NAME}/database/${DB_NAME}/binlog
 # ----------------------------------------------------------------------
 
@@ -49,3 +50,4 @@ aws s3 sync --profile s3-sync-${ENV} \
 
 # 削除
 rm -rf ${TEMP_DIR}/*
+
