@@ -21,7 +21,7 @@ S3_BUCKET_PATH=s3://${S3_BUCKET_NAME}/database/${DB_NAME}/dump/${DAY}
 
 # ダンプファイル名
 DUMP_FILE_NAME=${DB_NAME}-${DATE}.dump
-TEMP_PATH="${HOME}/.batch/backup/database/${DB_NAME}/${DAY}"
+TEMP_PATH="${HOME}/.batch/backup/database/${DB_NAME}/${ENV}/${DAY}"
 mkdir -p ${TEMP_PATH}
 
 # dump 取得
@@ -38,8 +38,8 @@ mysqldump --defaults-extra-file=${DB_PROFILE_PATH} \
 # 圧縮
 gzip -f ${TEMP_PATH}/${DUMP_FILE_NAME}
 
-# 4日以上前のバックアップは消す
-find ${TEMP_PATH}/ -mtime +4 -exec rm -f {} \;
+# 3日以上前のバックアップは消す
+find ${HOME}/.batch/backup/database/${DB_NAME}/${ENV}/ -mtime +3 -exec rm -f {} \;
 
 # S3と同期
 aws s3 sync --profile s3-sync-${ENV} \
