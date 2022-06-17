@@ -16,7 +16,7 @@ DB_NAME=@@@DB_NAME@@@
 DB_PROFILE_PATH=../../profiles/${DB_NAME}_${ENV}_writer.conf
 
 # 取得するbinlogファイル数
-MAX_DOWNLOAD_BINLOG_COUNT=10
+MAX_DOWNLOAD_BINLOG_COUNT=2
 TEMP_DIR=./tmp_binlog/${DB_NAME}/${ENV}
 S3_DIR=s3://${S3_BUCKET_NAME}/database/${DB_NAME}/binlog
 # ----------------------------------------------------------------------
